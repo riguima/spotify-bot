@@ -5,6 +5,7 @@ from spotify_bot.use_cases import (
     make_login, create_driver, register, listen_playlist
 )
 from spotify_bot.domain import generate_email, Account
+from spotify_bot.repositories import AccountRepository
 
 
 @pytest.fixture(scope='module')
@@ -15,13 +16,13 @@ def driver() -> Chrome:
 def test_make_login(driver: Chrome) -> None:
     assert make_login(
         driver,
-        Account('richard.alexsander.guima@gmail.com', 'Richard23102019'))
+        Account('richard.alexsander.guima@gmail.com', 'Richard23102019!'))
 
 
 def test_register_with_existent_account(driver: Chrome) -> None:
     assert not register(
         driver,
-        Account('richard.alexsander.guima@gmail.com', 'Richard23102019'))
+        Account('richard.alexsander.guima@gmail.com', 'Richard23102019!'))
 
 
 def test_register_with_non_existent_account(driver: Chrome) -> None:
@@ -31,8 +32,8 @@ def test_register_with_non_existent_account(driver: Chrome) -> None:
 def test_listen_playlist(driver: Chrome) -> None:
     assert make_login(
         driver,
-        Account('richard.alexsander.guima@gmail.com', 'Richard23102019'))
+        Account('richard.alexsander.guima@gmail.com', 'Richard23102019!'),
+    )
     assert listen_playlist(
         driver,
         'https://open.spotify.com/playlist/5iMQIGGlb10pH5qg87iZ6W')
-    assert False

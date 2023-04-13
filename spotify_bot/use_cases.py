@@ -79,15 +79,17 @@ def listen_playlist(driver: Chrome, playlist_url: str) -> bool:
     find_element(driver, '.RfidWIoz8FON2WhFoItU').click()
     music_titles = [m.text.lower() for m in find_elements(
         driver,
-        'div[data-testid=tracklist-row] div[aria-colindex="3"] .standalone-ellipsis-one-line',
+        '.t_yrXoUO3qGsJS4Y6iXX .Type__TypeElement-sc-goli3j-0',
     )]
-    print(music_titles)
     music_times = [float(t.text.replace(':', '.')) for t in find_elements(
         driver, '.HcMOFLaukKJdK5LfdHh0 div[data-encore-id=type]')]
-    print(sum(music_times) * 60)
     sleep(sum(music_times) * 60)
-    print(find_element(driver, 'span[draggable=true] a').text.lower())
-    return not find_element(driver, 'span[draggable=true] a').text in music_titles
+    for i in range(30):
+        if find_element(driver, 'span[draggable=true] a').text in music_titles:
+            sleep(10)
+        else:
+            return True
+    return False
 
 
 def click(driver: Chrome, selector: str) -> None:
