@@ -5,7 +5,6 @@ from spotify_bot.use_cases import (
     make_login, create_driver, register, listen_playlist
 )
 from spotify_bot.domain import generate_email, Account
-from spotify_bot.repositories import AccountRepository
 
 
 @pytest.fixture(scope='module')
@@ -34,6 +33,5 @@ def test_listen_playlist(driver: Chrome) -> None:
         driver,
         Account('richard.alexsander.guima@gmail.com', 'Richard23102019!'),
     )
-    assert listen_playlist(
-        driver,
-        'https://open.spotify.com/playlist/5iMQIGGlb10pH5qg87iZ6W')
+    listen_playlist(
+        driver, 'https://open.spotify.com/playlist/5iMQIGGlb10pH5qg87iZ6W')

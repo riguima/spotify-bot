@@ -12,7 +12,7 @@ if __name__ == '__main__':
         for i in range(10):
             login = make_login(driver, account)
             if login:
-                listen_playlist(driver, os.getenv('PLAYLIST_URL'), 60)
+                listen_playlist(driver, os.getenv('PLAYLIST_URL'))
             else:
                 break
     driver.quit()

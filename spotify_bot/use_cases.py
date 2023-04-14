@@ -10,6 +10,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 from time import sleep
+import re
 
 from spotify_bot.domain import Account
 
@@ -70,26 +71,17 @@ def register(driver: Chrome, account: Account) -> bool:
     return True
 
 
-def listen_playlist(driver: Chrome, playlist_url: str) -> bool:
+def listen_playlist(driver: Chrome, playlist_url: str) -> None:
     driver.get(playlist_url)
     hover = ActionChains(driver).move_to_element(
         find_element(driver, 'div[aria-rowindex="2"]')
     )
     hover.perform()
     find_element(driver, '.RfidWIoz8FON2WhFoItU').click()
-    music_titles = [m.text.lower() for m in find_elements(
-        driver,
-        '.t_yrXoUO3qGsJS4Y6iXX .Type__TypeElement-sc-goli3j-0',
-    )]
-    music_times = [float(t.text.replace(':', '.')) for t in find_elements(
-        driver, '.HcMOFLaukKJdK5LfdHh0 div[data-encore-id=type]')]
-    sleep(sum(music_times) * 60)
-    for i in range(30):
-        if find_element(driver, 'span[draggable=true] a').text in music_titles:
-            sleep(10)
-        else:
-            return True
-    return False
+    regex = re.compile(r'(\d+) min (\d+) sec')
+    time = find_element(driver, '.UyzJidwrGk3awngSGIwv').text
+    minutes, seconds = regex.findall(time)[0]
+    sleep(int(minutes) * 60 + int(seconds) + 20)
 
 
 def click(driver: Chrome, selector: str) -> None:
