@@ -81,10 +81,16 @@ def listen_playlist(accounts: list[Account], playlist_url: str) -> None:
             )
             hover.perform()
             find_element(drivers[i], '.RfidWIoz8FON2WhFoItU').click()
-    regex = re.compile(r'(\d+) min (\d+) sec')
-    time = find_element(drivers[0], '.UyzJidwrGk3awngSGIwv').text
-    minutes, seconds = regex.findall(time)[0]
-    sleep(int(minutes) * 60 + int(seconds))
+    try:
+        regex = re.compile(r'(\d+) min (\d+) sec')
+        time = find_element(drivers[0], '.UyzJidwrGk3awngSGIwv').text
+        minutes, seconds = regex.findall(time)[0]
+        sleep(int(minutes) * 60 + int(seconds))
+    except TimeoutException:
+        regex = re.compile(r'(\d+) hr (\d+) min')
+        time = find_element(drivers[0], '.poz9gZKE7xqFwgk231J4').text
+        hour, minutes = regex.findall(time)[0]
+        sleep(int(hour) * 60 * 60 + int(minutes) * 60)
     for driver in drivers:
         driver.quit()
 
