@@ -5,7 +5,7 @@ from spotify_bot.domain import generate_email, Account
 
 if __name__ == '__main__':
     amount = int(input('Quantas contas deseja criar? '))
-    driver = create_driver()
+    driver = create_driver(visible=True)
     account_repository = AccountRepository()
     for i in range(amount):
         email = generate_email()

@@ -71,17 +71,22 @@ def register(driver: Chrome, account: Account) -> bool:
     return True
 
 
-def listen_playlist(driver: Chrome, playlist_url: str) -> None:
-    driver.get(playlist_url)
-    hover = ActionChains(driver).move_to_element(
-        find_element(driver, 'div[aria-rowindex="2"]')
-    )
-    hover.perform()
-    find_element(driver, '.RfidWIoz8FON2WhFoItU').click()
+def listen_playlist(accounts: list[Account], playlist_url: str) -> None:
+    drivers = [create_driver(visible=True) for i in range(len(accounts))]
+    for i, account in enumerate(accounts):
+        if make_login(drivers[i], account):
+            drivers[i].get(playlist_url)
+            hover = ActionChains(drivers[i]).move_to_element(
+                find_element(drivers[i], 'div[aria-rowindex="2"]')
+            )
+            hover.perform()
+            find_element(drivers[i], '.RfidWIoz8FON2WhFoItU').click()
     regex = re.compile(r'(\d+) min (\d+) sec')
-    time = find_element(driver, '.UyzJidwrGk3awngSGIwv').text
+    time = find_element(drivers[0], '.UyzJidwrGk3awngSGIwv').text
     minutes, seconds = regex.findall(time)[0]
-    sleep(int(minutes) * 60 + int(seconds) + 20)
+    sleep(int(minutes) * 60 + int(seconds))
+    for driver in drivers:
+        driver.quit()
 
 
 def click(driver: Chrome, selector: str) -> None:

@@ -1,18 +1,15 @@
 from dotenv import load_dotenv
-import os
 
 from spotify_bot.repositories import AccountRepository
-from spotify_bot.use_cases import make_login, listen_playlist, create_driver
+from spotify_bot.use_cases import listen_playlist
 
 
 if __name__ == '__main__':
     load_dotenv()
-    driver = create_driver()
-    for account in AccountRepository().all():
-        for i in range(10):
-            login = make_login(driver, account)
-            if login:
-                listen_playlist(driver, os.getenv('PLAYLIST_URL'))
-            else:
-                break
-    driver.quit()
+    playlist_url = input('Digite a url da playlist: ')
+    drivers_amount = int(input('Rodar em quantos navegadores? '))
+    accounts = AccountRepository().all()
+    for i in range(len(accounts) // drivers_amount):
+        listen_playlist(
+            accounts[i * drivers_amount:i * drivers_amount + drivers_amount],
+            playlist_url)
