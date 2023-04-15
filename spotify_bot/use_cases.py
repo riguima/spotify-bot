@@ -68,7 +68,7 @@ def register(driver: Chrome, account: Account) -> bool:
         find_element(driver, '.Linux__Container-owbdmj-0', 5)
     except TimeoutException:
         return False
-    return True
+    return make_login(driver, account)
 
 
 def listen_playlist(accounts: list[Account], playlist_url: str) -> None:
