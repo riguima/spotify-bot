@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 
 from spotify_bot.repositories import AccountRepository
-from spotify_bot.use_cases import listen_playlist, make_login
+from spotify_bot.use_cases import listen_playlist, make_login, create_driver
 
 
 if __name__ == '__main__':
@@ -14,7 +14,9 @@ if __name__ == '__main__':
             while True:
                 listen_accounts = accounts[
                     i * drivers_amount:i * drivers_amount + drivers_amount]
-                make_logins = [make_login(a) for a in listen_accounts]
+                driver = create_driver(visible=True)
+                make_logins = [make_login(driver, a) for a in listen_accounts]
+                driver.quit()
                 if make_logins.count(False) > 0:
                     del accounts[make_logins.index(False)]
                 else:
