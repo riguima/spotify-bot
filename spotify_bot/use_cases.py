@@ -45,6 +45,10 @@ def register(driver: Chrome, account: Account) -> bool:
     driver.get('https://www.spotify.com/br-pt/signup')
     find_element(driver, '#email').send_keys(account.email)
     try:
+        click(driver, '.recaptcha-checkbox-border')
+    except TimeoutException:
+        pass
+    try:
         find_element(driver, '#confirm', 5).send_keys(account.email)
     except TimeoutException:
         pass
