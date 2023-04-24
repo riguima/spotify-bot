@@ -11,15 +11,12 @@ if __name__ == '__main__':
     accounts = AccountRepository().all()
     for _ in range(10):
         for i in range(len(accounts) // drivers_amount):
-            while True:
-                listen_accounts = accounts[
-                    i * drivers_amount:i * drivers_amount + drivers_amount]
-                driver = create_driver(visible=True)
-                make_logins = [make_login(driver, a) for a in listen_accounts]
-                driver.quit()
-                if make_logins.count(False) == 0:
-                    break
-                for e, login in enumerate(make_logins):
-                    if not login:
-                        del accounts[e]
+            listen_accounts = accounts[
+                i * drivers_amount:i * drivers_amount + drivers_amount]
+            driver = create_driver(visible=True)
+            make_logins = [make_login(driver, a) for a in listen_accounts]
+            driver.quit()
+            for e, login in enumerate(make_logins):
+                if not login:
+                    del listen_accounts[e]
             listen_playlist(listen_accounts, playlist_url)
