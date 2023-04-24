@@ -20,6 +20,6 @@ if __name__ == '__main__':
                 if make_logins.count(False) == 0:
                     break
                 for login in make_logins:
-                    if login:
+                    if not login:
                         del login
             listen_playlist(listen_accounts, playlist_url)
