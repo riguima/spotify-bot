@@ -17,8 +17,9 @@ if __name__ == '__main__':
                 driver = create_driver(visible=True)
                 make_logins = [make_login(driver, a) for a in listen_accounts]
                 driver.quit()
-                if make_logins.count(False) > 0:
-                    del accounts[make_logins.index(False)]
-                else:
+                if make_logins.count(False) == 0:
                     break
+                for login in make_logins:
+                    if login:
+                        del login
             listen_playlist(listen_accounts, playlist_url)
