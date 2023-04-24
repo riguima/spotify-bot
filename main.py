@@ -21,5 +21,5 @@ if __name__ == '__main__':
                     break
                 for login in make_logins:
                     if not login:
-                        del login
+                        make_logins.pop(login)
             listen_playlist(listen_accounts, playlist_url)
