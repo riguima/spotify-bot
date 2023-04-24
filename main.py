@@ -19,7 +19,7 @@ if __name__ == '__main__':
                 driver.quit()
                 if make_logins.count(False) == 0:
                     break
-                for login in make_logins:
+                for e, login in enumerate(make_logins):
                     if not login:
-                        make_logins.pop(login)
+                        del accounts[e]
             listen_playlist(listen_accounts, playlist_url)
