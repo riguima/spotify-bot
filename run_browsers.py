@@ -29,9 +29,14 @@ if __name__ == "__main__":
             for command in session.scalars(query).all():
                 session.delete(command)
                 session.commit()
-            for command in session.scalars(select(Command)).all():
-                for _ in range(command.amount):
-                    while True:
-                        if len(threading.enumerate()) <= get_config()["BROWSERS_COUNT"]:
-                            threading.Thread(target=run_command, args=[command]).start()
-                            break
+            query = select(Command).order_by(Command.order)
+            command = session.scalars(query).first()
+            if command:
+                num_threads = len(threading.enumerate())
+                for _ in range(
+                    min(
+                        command.amount,
+                        get_config()["BROWSERS_COUNT"] - (num_threads - 1),
+                    )
+                ):
+                    threading.Thread(target=run_command, args=[command]).start()

@@ -22,6 +22,7 @@ class Command(Base):
     playlist_url: Mapped[str]
     song_index: Mapped[Optional[int]]
     amount: Mapped[int]
+    order: Mapped[int]
 
 
 Base.metadata.create_all(db)
