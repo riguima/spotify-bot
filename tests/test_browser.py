@@ -57,7 +57,6 @@ def test_listen_playlist_song(browser):
     browser.driver.get(get_config()["PLAYLIST_URL"])
     songs = browser.find_elements('div[data-testid="tracklist-row"]')
     song_index = random.randint(0, len(songs) - 1)
-    song_index = 0
     browser.listen_playlist_song(get_config()["PLAYLIST_URL"], song_index)
     song = browser.find_elements('div[data-testid="tracklist-row"]')[song_index]
     browser.find_element(".RfidWIoz8FON2WhFoItU", wait=5, element=song)
