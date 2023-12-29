@@ -3,6 +3,7 @@
 
 *.toml
 .vscode
+*.db
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

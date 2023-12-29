@@ -1,6 +1,7 @@
 import random
 
 import pytest
+from selenium.common.exceptions import TimeoutException
 from sqlalchemy import select
 
 from spotify_bot.browser import Browser
@@ -24,7 +25,9 @@ def test_make_login(browser):
 def test_logout(browser):
     browser.make_login(get_config()["EMAIL"], get_config()["PASSWORD"])
     browser.logout()
-    browser.make_login(get_config()["EMAIL"], get_config()["PASSWORD"])
+    browser.driver.get("https://www.spotify.com/br-pt/account/overview/")
+    with pytest.raises(TimeoutException):
+        browser.find_element(".mh-profile-title", wait=5)
 
 
 def test_make_login_with_invalid_login(browser):

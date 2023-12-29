@@ -76,6 +76,8 @@ class MainWindow(QtWidgets.QWidget):
             )
             session.add(command)
             session.commit()
+        for line_edit in [self.song_index_input, self.amount_input]:
+            line_edit.setText("")
         config_copy = get_config()
         config_copy["PLAYLIST_URL"] = self.playlist_url_input.text()
         toml.dump(
@@ -94,5 +96,5 @@ class MainWindow(QtWidgets.QWidget):
         for _ in range(int(self.registrations_amount_input.text())):
             browser.register()
             browser.logout()
-        self.message_box.setText("Conta adicionada")
+        self.message_box.setText("Conta(s) adicionada(s)")
         self.message_box.show()

@@ -28,6 +28,8 @@ def test_add_to_queue_with_song_index_and_amount(qtbot):
     widget.amount_input.setText("1000")
     widget.add_to_queue_button.click()
     assert widget.message_box.isVisible()
+    assert not widget.song_index_input.text()
+    assert not widget.amount_input.text()
     with Session() as session:
         command = session.scalars(select(Command)).all()[-1]
         assert command.playlist_url == get_config()["PLAYLIST_URL"]
