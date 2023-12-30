@@ -11,15 +11,16 @@ from spotify_bot.models import Account, Command
 
 def run_command(command):
     with Session() as session:
-        account = random.choice(session.scalars(select(Account)).all())
+        try:
+            account = random.choice(session.scalars(select(Account)).all())
+        except IndexError:
+            return
         browser = Browser(headless=False)
         browser.make_login(account.email, account.password)
         if command.song_index is None:
             browser.listen_playlist(command.playlist_url)
         else:
             browser.listen_playlist_song(command.playlist_url, command.song_index)
-        command.amount -= 1
-        session.commit()
 
 
 if __name__ == "__main__":
@@ -39,4 +40,6 @@ if __name__ == "__main__":
                         get_config()["BROWSERS_COUNT"] - (num_threads - 1),
                     )
                 ):
+                    command.amount -= 1
+                    session.commit()
                     threading.Thread(target=run_command, args=[command]).start()

@@ -1,4 +1,5 @@
 import toml
+import os
 from PySide6 import QtCore, QtGui, QtWidgets
 from sqlalchemy import select
 
@@ -34,12 +35,13 @@ class QueueTableKeyPressFilter(QtCore.QObject):
     def eventFilter(self, widget, event):
         if event.type() == QtCore.QEvent.Type.KeyPress:
             scan_code = event.nativeScanCode()
-            if scan_code in [111, 116]:
+            scan_codes = [328, 336] if os.name == 'nt' else [111, 116]
+            if scan_code in scan_codes:
                 try:
                     data = widget.model()._data[widget.selectedIndexes()[0].row()]
                     with Session() as session:
                         model = session.get(Command, data[0])
-                        if scan_code == 111 and data[4] != 0:
+                        if scan_code == scan_codes[0] and data[4] != 0:
                             query = select(Command).where(
                                 Command.order == model.order - 1
                             )
@@ -47,7 +49,7 @@ class QueueTableKeyPressFilter(QtCore.QObject):
                             old_model.order += 1
                             model.order -= 1
                         elif (
-                            scan_code == 116
+                            scan_code == scan_codes[1]
                             and data[4] != len(widget.model()._data) - 1
                         ):
                             query = select(Command).where(
