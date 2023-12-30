@@ -50,6 +50,10 @@ def test_listen_playlist(browser):
     browser.listen_playlist(get_config()["PLAYLIST_URL"])
     last_song = browser.find_elements('div[data-testid="tracklist-row"]')[-1]
     browser.find_element(".RfidWIoz8FON2WhFoItU", wait=5, element=last_song)
+    add_button = browser.find_element(
+        'div[data-testid="action-bar-row"] button[data-testid="add-button"]'
+    )
+    assert add_button.get_attribute("aria-checked") == "true"
 
 
 def test_listen_playlist_song(browser):
@@ -60,3 +64,7 @@ def test_listen_playlist_song(browser):
     browser.listen_playlist_song(get_config()["PLAYLIST_URL"], song_index)
     song = browser.find_elements('div[data-testid="tracklist-row"]')[song_index]
     browser.find_element(".RfidWIoz8FON2WhFoItU", wait=5, element=song)
+    add_button = browser.find_element(
+        'div[data-testid="action-bar-row"] button[data-testid="add-button"]'
+    )
+    assert add_button.get_attribute("aria-checked") == "true"

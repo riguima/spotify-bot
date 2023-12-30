@@ -129,9 +129,12 @@ class MainWindow(QtWidgets.QWidget):
         self.queue_table.setColumnHidden(0, True)
         self.queue_table.setColumnHidden(4, True)
         self.queue_table.installEventFilter(QueueTableKeyPressFilter(parent=self))
+        self.remove_from_queue_button = QtWidgets.QPushButton("Remover da Fila")
+        self.remove_from_queue_button.clicked.connect(self.remove_from_queue)
         self.queue_table_layout = QtWidgets.QVBoxLayout()
         self.queue_table_layout.addWidget(self.queue_table_label)
         self.queue_table_layout.addWidget(self.queue_table)
+        self.queue_table_layout.addWidget(self.remove_from_queue_button)
 
         self.main_layout = QtWidgets.QHBoxLayout(self)
         self.main_layout.addLayout(self.inputs_layout)
@@ -173,6 +176,17 @@ class MainWindow(QtWidgets.QWidget):
             browser.logout()
         self.message_box.setText("Conta(s) adicionada(s)")
         self.message_box.show()
+
+    @QtCore.Slot()
+    def remove_from_queue(self):
+        with Session() as session:
+            for index in self.queue_table.selectedIndexes():
+                model = session.get(
+                    Command, self.queue_table.model()._data[index.row()][0]
+                )
+                session.delete(model)
+            session.commit()
+        self.update_queue_table()
 
     def update_queue_table(self):
         headers = ["ID", "Playlist URL", "Música", "Quantidade", "Ordem"]

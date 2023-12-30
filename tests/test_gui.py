@@ -64,3 +64,32 @@ def test_queue_table(qtbot, session):
     widget.add_to_queue_button.click()
     data = widget.queue_table.model()._data[0]
     assert data == [1, get_config()["PLAYLIST_URL"], 5, 500, 0]
+
+
+def test_remove_queue_table_item(qtbot, session):
+    widget = MainWindow()
+    qtbot.addWidget(widget)
+    widget.playlist_url_input.setText(get_config()["PLAYLIST_URL"])
+    widget.add_to_queue_button.click()
+    assert widget.queue_table.model().rowCount() == 1
+    widget.queue_table.selectRow(0)
+    widget.remove_from_queue_button.click()
+    assert widget.queue_table.model()._data[0] == [
+        "" for _ in widget.queue_table.model()._headers
+    ]
+    assert not session.scalars(select(Command)).all()
+
+
+def test_remove_multiple_queue_table_items(qtbot, session):
+    widget = MainWindow()
+    qtbot.addWidget(widget)
+    widget.playlist_url_input.setText(get_config()["PLAYLIST_URL"])
+    for _ in range(2):
+        widget.add_to_queue_button.click()
+    widget.queue_table.selectAll()
+    assert widget.queue_table.model().rowCount() == 2
+    widget.remove_from_queue_button.click()
+    assert widget.queue_table.model()._data[0] == [
+        "" for _ in widget.queue_table.model()._headers
+    ]
+    assert not session.scalars(select(Command)).all()

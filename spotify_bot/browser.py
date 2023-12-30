@@ -3,11 +3,10 @@ from time import sleep
 
 import pyautogui
 from faker import Faker
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementNotInteractableException, TimeoutException
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
@@ -95,7 +94,7 @@ class Browser:
                 found_captcha = True
                 break
             except pyautogui.ImageNotFoundException:
-                sleep(.5)
+                sleep(0.5)
         if not found_captcha:
             return
         sleep(1)
@@ -128,29 +127,37 @@ class Browser:
         sleep(3)
 
     def listen_playlist(self, url):
-        self.driver.get(url)
-        self.find_element(".onetrust-close-btn-handler").click()
-        add_button = self.find_element('.dAlRsJ[data-testid="add-button"]')
-        if add_button.get_attribute("aria-checked") == "false":
-            add_button.click()
-        for _ in range(2):
-            self.find_elements('button[data-testid="play-button"]')[1].click()
+        self.play_first_song(url)
         for i in range(len(self.find_elements('div[data-testid="tracklist-row"]'))):
             if i != 0:
-                self.find_element('button[data-testid="control-button-skip-forward"]').click()
+                self.find_element(
+                    'button[data-testid="control-button-skip-forward"]'
+                ).click()
             sleep(random.uniform(1.5, 2) * 60)
 
     def listen_playlist_song(self, url, song_index):
+        self.play_first_song(url)
+        for _ in range(song_index):
+            sleep(3)
+            self.find_element(
+                'button[data-testid="control-button-skip-forward"]'
+            ).click()
+        sleep(random.uniform(1.5, 2) * 60)
+
+    def play_first_song(self, url):
         self.driver.get(url)
-        self.find_element(".onetrust-close-btn-handler").click()
-        add_button = self.find_element('.dAlRsJ[data-testid="add-button"]')
+        for _ in range(10):
+            try:
+                self.find_element(".onetrust-close-btn-handler").click()
+                break
+            except ElementNotInteractableException:
+                sleep(0.5)
+        add_button = self.find_element(
+            'div[data-testid="action-bar-row"] button[data-testid="add-button"]'
+        )
         if add_button.get_attribute("aria-checked") == "false":
             add_button.click()
-        for _ in range(2):
-            self.find_elements('button[data-testid="play-button"]')[1].click()
-        for _ in range(song_index):
-            self.find_element('button[data-testid="control-button-skip-forward"]').click()
-        sleep(random.uniform(1.5, 2) * 60)
+        self.find_element(".VpYFchIiPg3tPhBGyynT").click()
 
     def find_element(self, selector, element=None, wait=30):
         element = element or self.driver
