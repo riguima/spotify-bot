@@ -1,4 +1,5 @@
 import pytest
+from faker import Faker
 from sqlalchemy import select
 
 from spotify_bot.config import get_config
@@ -45,13 +46,59 @@ def test_add_to_queue_with_song_index_and_amount(qtbot, session):
     assert command.order == 0
 
 
-def test_register(qtbot, session):
+def test_create_accounts(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)
-    widget.registrations_amount_input.setText("2")
-    widget.register_button.click()
+    widget.accounts_amount_input.setText("2")
+    widget.create_accounts_button.click()
     assert widget.message_box.isVisible()
     assert len(session.scalars(select(Account)).all()) == 2
+
+
+def test_accounts_table(qtbot, session):
+    fake = Faker('pt_BR')
+    email = fake.email()
+    password = fake.password()
+    session.add(Account(email=email, password=password))
+    session.commit()
+    widget = MainWindow()
+    qtbot.addWidget(widget)
+    assert widget.accounts_table.model()._data[0] == [1, email, password]
+
+
+def test_remove_accounts_table_item(qtbot, session):
+    fake = Faker('pt_BR')
+    email = fake.email()
+    password = fake.password()
+    session.add(Account(email=email, password=password))
+    session.commit()
+    widget = MainWindow()
+    qtbot.addWidget(widget)
+    assert widget.accounts_table.model()._data[0] == [1, email, password]
+    widget.accounts_table.selectRow(0)
+    widget.remove_accounts_button.click()
+    assert widget.accounts_table.model()._data[0] == [
+        "" for _ in widget.accounts_table.model()._headers
+    ]
+    assert not session.scalars(select(Account)).all()
+
+
+def test_remove_multiple_accounts_table_items(qtbot, session):
+    fake = Faker('pt_BR')
+    for _ in range(2):
+        email = fake.email()
+        password = fake.password()
+        session.add(Account(email=email, password=password))
+    session.commit()
+    widget = MainWindow()
+    qtbot.addWidget(widget)
+    widget.accounts_table.selectAll()
+    assert widget.accounts_table.model().rowCount() == 2
+    widget.remove_accounts_button.click()
+    assert widget.accounts_table.model()._data[0] == [
+        "" for _ in widget.accounts_table.model()._headers
+    ]
+    assert not session.scalars(select(Account)).all()
 
 
 def test_queue_table(qtbot, session):

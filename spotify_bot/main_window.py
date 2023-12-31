@@ -1,12 +1,13 @@
-import toml
 import os
+
+import toml
 from PySide6 import QtCore, QtGui, QtWidgets
 from sqlalchemy import select
 
 from spotify_bot.browser import Browser
 from spotify_bot.config import get_config
 from spotify_bot.database import Session
-from spotify_bot.models import Command
+from spotify_bot.models import Account, Command
 
 
 class TableModel(QtCore.QAbstractTableModel):
@@ -68,7 +69,7 @@ class QueueTableKeyPressFilter(QtCore.QObject):
 class MainWindow(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(1000, 400)
+        self.setFixedSize(1200, 300)
         self.setWindowTitle("Spotify Bot")
         with open("style.qss", "r") as f:
             self.setStyleSheet(f.read())
@@ -104,23 +105,23 @@ class MainWindow(QtWidgets.QWidget):
         self.add_to_queue_button = QtWidgets.QPushButton("Adicionar a Fila")
         self.add_to_queue_button.clicked.connect(self.add_to_queue)
 
-        self.registrations_amount_label = QtWidgets.QLabel("Quantidade de Contas:")
-        self.registrations_amount_input = QtWidgets.QLineEdit()
-        self.registrations_amount_input.setValidator(QtGui.QIntValidator())
-        self.registrations_amount_layout = QtWidgets.QHBoxLayout()
-        self.registrations_amount_layout.addWidget(self.registrations_amount_label)
-        self.registrations_amount_layout.addWidget(self.registrations_amount_input)
+        self.accounts_amount_label = QtWidgets.QLabel("Quantidade de Contas:")
+        self.accounts_amount_input = QtWidgets.QLineEdit()
+        self.accounts_amount_input.setValidator(QtGui.QIntValidator())
+        self.accounts_amount_layout = QtWidgets.QHBoxLayout()
+        self.accounts_amount_layout.addWidget(self.accounts_amount_label)
+        self.accounts_amount_layout.addWidget(self.accounts_amount_input)
 
-        self.register_button = QtWidgets.QPushButton("Registrar")
-        self.register_button.clicked.connect(self.register)
+        self.create_accounts_button = QtWidgets.QPushButton("Criar Contas")
+        self.create_accounts_button.clicked.connect(self.create_accounts)
 
         self.inputs_layout = QtWidgets.QVBoxLayout()
         self.inputs_layout.addLayout(self.playlist_url_layout)
         self.inputs_layout.addLayout(self.song_index_layout)
         self.inputs_layout.addLayout(self.amount_layout)
         self.inputs_layout.addWidget(self.add_to_queue_button)
-        self.inputs_layout.addLayout(self.registrations_amount_layout)
-        self.inputs_layout.addWidget(self.register_button)
+        self.inputs_layout.addLayout(self.accounts_amount_layout)
+        self.inputs_layout.addWidget(self.create_accounts_button)
 
         self.queue_table_label = QtWidgets.QLabel(
             "Fila", alignment=QtCore.Qt.AlignmentFlag.AlignCenter
@@ -138,9 +139,24 @@ class MainWindow(QtWidgets.QWidget):
         self.queue_table_layout.addWidget(self.queue_table)
         self.queue_table_layout.addWidget(self.remove_from_queue_button)
 
+        self.accounts_table_label = QtWidgets.QLabel(
+            "Contas", alignment=QtCore.Qt.AlignmentFlag.AlignCenter
+        )
+        self.accounts_table_label.setStyleSheet("font-weight: bold;")
+        self.accounts_table = QtWidgets.QTableView()
+        self.update_accounts_table()
+        self.accounts_table.setColumnHidden(0, True)
+        self.remove_accounts_button = QtWidgets.QPushButton("Remover Contas")
+        self.remove_accounts_button.clicked.connect(self.remove_accounts)
+        self.accounts_table_layout = QtWidgets.QVBoxLayout()
+        self.accounts_table_layout.addWidget(self.accounts_table_label)
+        self.accounts_table_layout.addWidget(self.accounts_table)
+        self.accounts_table_layout.addWidget(self.remove_accounts_button)
+
         self.main_layout = QtWidgets.QHBoxLayout(self)
         self.main_layout.addLayout(self.inputs_layout)
         self.main_layout.addLayout(self.queue_table_layout)
+        self.main_layout.addLayout(self.accounts_table_layout)
 
     @QtCore.Slot()
     def add_to_queue(self):
@@ -171,12 +187,12 @@ class MainWindow(QtWidgets.QWidget):
         self.message_box.show()
 
     @QtCore.Slot()
-    def register(self):
+    def create_accounts(self):
         browser = Browser(headless=False)
-        for _ in range(int(self.registrations_amount_input.text())):
+        for _ in range(int(self.accounts_amount_input.text())):
             browser.register()
             browser.logout()
-        self.message_box.setText("Conta(s) adicionada(s)")
+        self.message_box.setText("Conta(s) criada(s)")
         self.message_box.show()
 
     @QtCore.Slot()
@@ -189,6 +205,17 @@ class MainWindow(QtWidgets.QWidget):
                 session.delete(model)
             session.commit()
         self.update_queue_table()
+    
+    @QtCore.Slot()
+    def remove_accounts(self):
+        with Session() as session:
+            for index in self.accounts_table.selectedIndexes():
+                model = session.get(
+                    Account, self.accounts_table.model()._data[index.row()][0]
+                )
+                session.delete(model)
+            session.commit()
+        self.update_accounts_table()
 
     def update_queue_table(self):
         headers = ["ID", "Playlist URL", "Música", "Quantidade", "Ordem"]
@@ -209,3 +236,19 @@ class MainWindow(QtWidgets.QWidget):
             data = [["" for _ in headers]]
         data.sort(key=lambda r: r[4])
         self.queue_table.setModel(TableModel(self, data, headers))
+
+    def update_accounts_table(self):
+        headers = ["ID", "Email", "Senha"]
+        data = []
+        with Session() as session:
+            for account in session.scalars(select(Account)).all():
+                data.append(
+                    [
+                        account.id,
+                        account.email,
+                        account.password,
+                    ]
+                )
+        if not data:
+            data = [["" for _ in headers]]
+        self.accounts_table.setModel(TableModel(self, data, headers))

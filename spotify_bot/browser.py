@@ -3,7 +3,8 @@ from time import sleep
 
 import pyautogui
 from faker import Faker
-from selenium.common.exceptions import ElementNotInteractableException, TimeoutException
+from selenium.common.exceptions import (ElementNotInteractableException,
+                                        TimeoutException)
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -170,6 +171,3 @@ class Browser:
         return WebDriverWait(element, wait).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector))
         )
-
-    def __del__(self):
-        self.driver.quit()
