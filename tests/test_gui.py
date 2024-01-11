@@ -62,10 +62,11 @@ def test_add_to_queue_with_song_index_and_amount(qtbot, session):
 def test_create_accounts(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)
-    widget.accounts_amount_input.setText("2")
+    widget.accounts_amount_input.setText("1")
     widget.create_accounts_button.click()
     assert widget.message_box.isVisible()
-    assert len(session.scalars(select(Account)).all()) == 2
+    assert len(session.scalars(select(Account)).all()) == 1
+    assert len(widget.accounts_table.model()._data) == 1
 
 
 def test_accounts_table(qtbot, session):

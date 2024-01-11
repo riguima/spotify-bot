@@ -196,6 +196,7 @@ class MainWindow(QtWidgets.QWidget):
         for _ in range(int(self.accounts_amount_input.text())):
             browser.register()
             browser.logout()
+        self.update_accounts_table()
         self.message_box.setText("Conta(s) criada(s)")
         self.message_box.show()
 
