@@ -160,6 +160,10 @@ class MainWindow(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def add_to_queue(self):
+        if 'open.spotify.com' not in self.playlist_url_input.text() or '?' in self.playlist_url_input.text():
+            self.message_box.setText('URL inválida')
+            self.message_box.show()
+            return
         with Session() as session:
             song_index = self.song_index_input.text() or None
             amount = self.amount_input.text() or 1

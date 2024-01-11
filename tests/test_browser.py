@@ -47,7 +47,7 @@ def test_register(browser):
 
 def test_listen_playlist(browser):
     browser.make_login(get_config()["EMAIL"], get_config()["PASSWORD"])
-    browser.listen_playlist(get_config()["PLAYLIST_URL"])
+    browser.listen_playlist(get_config()["PLAYLIST_URL"], min_sleep=1, max_sleep=5)
     last_song = browser.find_elements('div[data-testid="tracklist-row"]')[-1]
     browser.find_element(".RfidWIoz8FON2WhFoItU", wait=5, element=last_song)
     add_button = browser.find_element(
@@ -61,7 +61,7 @@ def test_listen_playlist_song(browser):
     browser.driver.get(get_config()["PLAYLIST_URL"])
     songs = browser.find_elements('div[data-testid="tracklist-row"]')
     song_index = random.randint(0, len(songs) - 1)
-    browser.listen_playlist_song(get_config()["PLAYLIST_URL"], song_index)
+    browser.listen_playlist_song(get_config()["PLAYLIST_URL"], song_index, min_sleep=1, max_sleep=5)
     song = browser.find_elements('div[data-testid="tracklist-row"]')[song_index]
     browser.find_element(".RfidWIoz8FON2WhFoItU", wait=5, element=song)
     add_button = browser.find_element(

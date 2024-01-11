@@ -4,14 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-sqlalchemy = "*"
-faker = "*"
+pyside6 = "*"
 selenium = "*"
 webdriver-manager = "*"
 toml = "*"
-pyside6 = "*"
+faker = "*"
+sqlalchemy = "*"
 pyautogui = "*"
-pillow = "*"
 opencv-python = "*"
 
 [dev-packages]
@@ -19,4 +18,4 @@ pytest = "*"
 pytest-qt = "*"
 
 [requires]
-python_version = "3.12"
+python_version = "3.11"

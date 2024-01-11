@@ -29,6 +29,19 @@ def test_add_to_queue(qtbot, session):
     assert command.order == 0
 
 
+def test_add_to_queue_with_invalid_url(qtbot, session):
+    widget = MainWindow()
+    qtbot.addWidget(widget)
+    widget.playlist_url_input.setText('https://open.spotify.com/playlist/2rmpBmqVo7dVYmKqthoOVW?si=b74b554587624aff')
+    widget.add_to_queue_button.click()
+    assert widget.message_box.isVisible()
+    assert widget.message_box.text() == 'URL inválida'
+    widget.playlist_url_input.setText('https://www.youtube.com/')
+    widget.add_to_queue_button.click()
+    assert widget.message_box.isVisible()
+    assert widget.message_box.text() == 'URL inválida'
+
+
 def test_add_to_queue_with_song_index_and_amount(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)

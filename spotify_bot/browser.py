@@ -127,23 +127,23 @@ class Browser:
         self.find_element('button[data-testid="user-widget-dropdown-logout"]').click()
         sleep(3)
 
-    def listen_playlist(self, url):
+    def listen_playlist(self, url, min_sleep=90, max_sleep=120):
         self.play_first_song(url)
         for i in range(len(self.find_elements('div[data-testid="tracklist-row"]'))):
             if i != 0:
                 self.find_element(
                     'button[data-testid="control-button-skip-forward"]'
                 ).click()
-            sleep(random.uniform(1.5, 2) * 60)
+            sleep(random.randint(min_sleep, max_sleep))
 
-    def listen_playlist_song(self, url, song_index):
+    def listen_playlist_song(self, url, song_index, min_sleep=90, max_sleep=120):
         self.play_first_song(url)
         for _ in range(song_index):
             sleep(3)
             self.find_element(
                 'button[data-testid="control-button-skip-forward"]'
             ).click()
-        sleep(random.uniform(1.5, 2) * 60)
+        sleep(random.randint(min_sleep, max_sleep))
 
     def play_first_song(self, url):
         self.driver.get(url)
