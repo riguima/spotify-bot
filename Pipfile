@@ -12,10 +12,14 @@ faker = "*"
 sqlalchemy = "*"
 pyautogui = "*"
 opencv-python = "*"
+qt-material = "*"
 
 [dev-packages]
 pytest = "*"
 pytest-qt = "*"
+blue = "*"
+isort = "*"
+ruff = "*"
 
 [requires]
 python_version = "3.11"

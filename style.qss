@@ -2,8 +2,6 @@ QWidget {
     font-size: 20px;
 }
 
-QPushButton {
-    font-size: 20px;
-    background-color: dodgerblue;
-    color: white;
+QLineEdit, QCombobox {
+  color: white;
 }

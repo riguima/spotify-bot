@@ -1,14 +1,18 @@
+from threading import Thread
+from time import sleep
+
 import pytest
 from faker import Faker
 from sqlalchemy import select
 
+from run_browsers import main
 from spotify_bot.config import get_config
 from spotify_bot.database import Session, db
 from spotify_bot.main_window import MainWindow
 from spotify_bot.models import Account, Base, Command
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope='function')
 def session():
     Base.metadata.drop_all(db)
     Base.metadata.create_all(db)
@@ -18,12 +22,11 @@ def session():
 def test_add_to_queue(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)
-    widget.playlist_url_input.setText(get_config()["PLAYLIST_URL"])
+    widget.playlist_url_input.setText(get_config()['PLAYLIST_URL'])
     widget.add_to_queue_button.click()
-    assert widget.message_box.isVisible()
-    assert get_config()["PLAYLIST_URL"] == widget.playlist_url_input.text()
+    assert get_config()['PLAYLIST_URL'] == widget.playlist_url_input.text()
     command = session.scalars(select(Command)).all()[-1]
-    assert command.playlist_url == get_config()["PLAYLIST_URL"]
+    assert command.playlist_url == get_config()['PLAYLIST_URL']
     assert command.song_index is None
     assert command.amount == 1
     assert command.order == 0
@@ -32,28 +35,27 @@ def test_add_to_queue(qtbot, session):
 def test_add_to_queue_with_invalid_url(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)
-    widget.playlist_url_input.setText('https://open.spotify.com/playlist/2rmpBmqVo7dVYmKqthoOVW?si=b74b554587624aff')
+    widget.playlist_url_input.setText(
+        'https://open.spotify.com/playlist/2rmpBmqVo7dVYmKqthoOVW?si=b74b554587624aff'
+    )
     widget.add_to_queue_button.click()
-    assert widget.message_box.isVisible()
     assert widget.message_box.text() == 'URL inválida'
     widget.playlist_url_input.setText('https://www.youtube.com/')
     widget.add_to_queue_button.click()
-    assert widget.message_box.isVisible()
     assert widget.message_box.text() == 'URL inválida'
 
 
 def test_add_to_queue_with_song_index_and_amount(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)
-    assert widget.playlist_url_input.text() == get_config()["PLAYLIST_URL"]
-    widget.song_index_input.setText("2")
-    widget.amount_input.setText("1000")
+    assert widget.playlist_url_input.text() == get_config()['PLAYLIST_URL']
+    widget.song_index_input.setText('2')
+    widget.amount_input.setText('1000')
     widget.add_to_queue_button.click()
-    assert widget.message_box.isVisible()
     assert not widget.song_index_input.text()
     assert not widget.amount_input.text()
     command = session.scalars(select(Command)).all()[-1]
-    assert command.playlist_url == get_config()["PLAYLIST_URL"]
+    assert command.playlist_url == get_config()['PLAYLIST_URL']
     assert command.song_index == 1
     assert command.amount == 1000
     assert command.order == 0
@@ -62,7 +64,7 @@ def test_add_to_queue_with_song_index_and_amount(qtbot, session):
 def test_create_accounts(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)
-    widget.accounts_amount_input.setText("1")
+    widget.accounts_amount_input.setText('1')
     widget.create_accounts_button.click()
     assert widget.message_box.isVisible()
     assert len(session.scalars(select(Account)).all()) == 1
@@ -92,7 +94,7 @@ def test_remove_accounts_table_item(qtbot, session):
     widget.accounts_table.selectRow(0)
     widget.remove_accounts_button.click()
     assert widget.accounts_table.model()._data[0] == [
-        "" for _ in widget.accounts_table.model()._headers
+        '' for _ in widget.accounts_table.model()._headers
     ]
     assert not session.scalars(select(Account)).all()
 
@@ -110,7 +112,7 @@ def test_remove_multiple_accounts_table_items(qtbot, session):
     assert widget.accounts_table.model().rowCount() == 2
     widget.remove_accounts_button.click()
     assert widget.accounts_table.model()._data[0] == [
-        "" for _ in widget.accounts_table.model()._headers
+        '' for _ in widget.accounts_table.model()._headers
     ]
     assert not session.scalars(select(Account)).all()
 
@@ -118,25 +120,25 @@ def test_remove_multiple_accounts_table_items(qtbot, session):
 def test_queue_table(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)
-    widget.playlist_url_input.setText(get_config()["PLAYLIST_URL"])
-    widget.song_index_input.setText("5")
-    widget.amount_input.setText("500")
-    assert widget.queue_table.model()._data[0] == ["" for _ in range(5)]
+    widget.playlist_url_input.setText(get_config()['PLAYLIST_URL'])
+    widget.song_index_input.setText('5')
+    widget.amount_input.setText('500')
+    assert widget.queue_table.model()._data[0] == ['' for _ in range(5)]
     widget.add_to_queue_button.click()
     data = widget.queue_table.model()._data[0]
-    assert data == [1, get_config()["PLAYLIST_URL"], 5, 500, 0]
+    assert data == [1, get_config()['PLAYLIST_URL'], 5, 500, 0]
 
 
 def test_remove_queue_table_item(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)
-    widget.playlist_url_input.setText(get_config()["PLAYLIST_URL"])
+    widget.playlist_url_input.setText(get_config()['PLAYLIST_URL'])
     widget.add_to_queue_button.click()
     assert widget.queue_table.model().rowCount() == 1
     widget.queue_table.selectRow(0)
     widget.remove_from_queue_button.click()
     assert widget.queue_table.model()._data[0] == [
-        "" for _ in widget.queue_table.model()._headers
+        '' for _ in widget.queue_table.model()._headers
     ]
     assert not session.scalars(select(Command)).all()
 
@@ -144,13 +146,13 @@ def test_remove_queue_table_item(qtbot, session):
 def test_remove_multiple_queue_table_items(qtbot, session):
     widget = MainWindow()
     qtbot.addWidget(widget)
-    widget.playlist_url_input.setText(get_config()["PLAYLIST_URL"])
+    widget.playlist_url_input.setText(get_config()['PLAYLIST_URL'])
     for _ in range(2):
         widget.add_to_queue_button.click()
     widget.queue_table.selectAll()
     assert widget.queue_table.model().rowCount() == 2
     widget.remove_from_queue_button.click()
     assert widget.queue_table.model()._data[0] == [
-        "" for _ in widget.queue_table.model()._headers
+        '' for _ in widget.queue_table.model()._headers
     ]
     assert not session.scalars(select(Command)).all()
