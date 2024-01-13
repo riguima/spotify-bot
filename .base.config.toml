@@ -1,0 +1,12 @@
+TESTING = false
+
+[default]
+DATABASE_URI = "sqlite:///database.db"
+BROWSERS_COUNT = 5
+
+[testing]
+DATABASE_URI = "sqlite:///database.db"
+EMAIL = "YOUR_SPOTIFY_EMAIL"
+PASSWORD = "YOUR_SPOTIFY_PASSWORD"
+PLAYLIST_URL = "PLAYLIST_URL"
+BROWSERS_COUNT = 5
