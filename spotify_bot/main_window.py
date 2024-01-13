@@ -191,8 +191,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.finished_message_thread = FinishedMessageThread(self)
         self.finished_message_thread.finished.connect(self.show_finished_message)
-        if self.queue_table.model()._data[0][0]:
-            self.finished_message_thread.start()
+        self.finished_message_thread.start()
 
     @QtCore.Slot()
     def add_to_queue(self):
