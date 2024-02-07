@@ -13,7 +13,7 @@ from spotify_bot.models import Account, Command
 running_commands = []
 
 
-def run_command(command, min_sleep, max_sleep):
+def run_command(command):
     global running_commands
     with Session() as session:
         try:
@@ -23,15 +23,13 @@ def run_command(command, min_sleep, max_sleep):
         browser = Browser(headless=False)
         browser.make_login(account.email, account.password)
         if command.song_index is None:
-            browser.listen_playlist(command.playlist_url, min_sleep, max_sleep)
+            browser.listen_playlist(command.playlist_url)
         else:
-            browser.listen_playlist_song(
-                command.playlist_url, command.song_index, min_sleep, max_sleep
-            )
+            browser.listen_playlist_song(command.playlist_url, command.song_index)
         running_commands.remove(command)
 
 
-def main(min_sleep=90, max_sleep=120):
+def main():
     global running_commands
     with Session() as session:
         while True:
@@ -55,13 +53,9 @@ def main(min_sleep=90, max_sleep=120):
                     running_commands.append(command)
                     threading.Thread(
                         target=run_command,
-                        args=[command, min_sleep, max_sleep],
+                        args=[command],
                     ).start()
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
-        min_sleep, max_sleep = sys.argv[1:]
-        main(int(min_sleep), int(max_sleep))
-    else:
-        main()
+    main()

@@ -1,5 +1,6 @@
 import random
 from time import sleep
+from datetime import datetime, timedelta
 
 import pyautogui
 from faker import Faker
@@ -135,27 +136,20 @@ class Browser:
         ).click()
         sleep(3)
 
-    def listen_playlist(self, url, min_sleep=90, max_sleep=120):
+    def listen_playlist(self, url):
         self.play_first_song(url)
-        for i in range(
-            len(self.find_elements('div[data-testid="tracklist-row"]'))
-        ):
-            if i != 0:
-                self.find_element(
-                    'button[data-testid="control-button-skip-forward"]'
-                ).click()
-            sleep(random.randint(min_sleep, max_sleep))
+        sleep(self.get_playlist_duration())
+        self.like_playlist()
 
-    def listen_playlist_song(
-        self, url, song_index, min_sleep=90, max_sleep=120
-    ):
+    def listen_playlist_song(self, url, song_index):
         self.play_first_song(url)
         for _ in range(song_index):
             sleep(3)
             self.find_element(
                 'button[data-testid="control-button-skip-forward"]'
             ).click()
-        sleep(random.randint(min_sleep, max_sleep))
+        sleep(self.get_playlist_song_duration(song_index))
+        self.like_playlist()
 
     def play_first_song(self, url):
         self.driver.get(url)
@@ -165,12 +159,32 @@ class Browser:
                 break
             except ElementNotInteractableException:
                 sleep(0.5)
+        self.find_element('.VpYFchIiPg3tPhBGyynT').click()
+
+    def get_playlist_duration(self):
+        now = datetime.now()
+        future = datetime.now()
+        for time in self.find_elements('.HcMOFLaukKJdK5LfdHh0 .Text__TextElement-sc-if376j-0'):
+            time_datetime = datetime.strptime(time.text, '%M:%S')
+            future = (future + timedelta(minutes=time_datetime.minute, seconds=time_datetime.second))
+        total_time = future - now
+        return total_time.seconds
+    
+    def get_playlist_song_duration(self, song_index):
+        now = datetime.now()
+        future = datetime.now()
+        time = self.find_elements('.HcMOFLaukKJdK5LfdHh0 .Text__TextElement-sc-if376j-0')[song_index]
+        time_datetime = datetime.strptime(time.text, '%M:%S')
+        future = (future + timedelta(minutes=time_datetime.minute, seconds=time_datetime.second))
+        total_time = future - now
+        return total_time.seconds
+
+    def like_playlist(self):
         add_button = self.find_element(
             'div[data-testid="action-bar-row"] button[data-testid="add-button"]'
         )
         if add_button.get_attribute('aria-checked') == 'false':
             add_button.click()
-        self.find_element('.VpYFchIiPg3tPhBGyynT').click()
 
     def find_element(self, selector, element=None, wait=30):
         element = element or self.driver
