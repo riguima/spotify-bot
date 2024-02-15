@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pyside6 = "*"
 selenium = "*"
 webdriver-manager = "*"
 toml = "*"
@@ -13,6 +12,8 @@ sqlalchemy = "*"
 pyautogui = "*"
 opencv-python = "*"
 qt-material = "*"
+undetected-chromedriver = "*"
+pyside6 = "*"
 
 [dev-packages]
 pytest = "*"
